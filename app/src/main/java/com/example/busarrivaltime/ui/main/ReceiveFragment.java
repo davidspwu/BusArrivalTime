@@ -29,36 +29,22 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.busarrivaltime.MainActivity;
 import com.example.busarrivaltime.R;
 
-public class MainFragment extends Fragment {
+public class ReceiveFragment extends Fragment {
 
     private MainViewModel mViewModel;
 
     private TextView mText;
     private BroadcastReceiver mReceiver;
 
-    public static MainFragment newInstance() {
-        return new MainFragment();
+    public static ReceiveFragment newInstance() {
+        return new ReceiveFragment();
     }
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.main_fragment, container, false);
-
-        int PERMISSION_ALL = 1;
-        String[] PERMISSIONS = {
-                Manifest.permission.SEND_SMS,
-                Manifest.permission.RECEIVE_SMS
-        };
-
-        if (!hasPermissions(getContext(), PERMISSIONS)) {
-            ActivityCompat.requestPermissions(getActivity(), PERMISSIONS, PERMISSION_ALL);
-        }
-
+    public void onAttach(Context context) {
+        super.onAttach(context);
 
         mReceiver = new BroadcastReceiver() {
             @Override
@@ -97,9 +83,15 @@ public class MainFragment extends Fragment {
 
         //---register the receiver---
         getContext().registerReceiver(mReceiver, intentFilter);
+    }
 
 
 
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.receive_fragment, container, false);
         return view;
     }
 
@@ -124,10 +116,6 @@ public class MainFragment extends Fragment {
                             Toast.LENGTH_SHORT).show();
             }
         });
-
-
-
-
     }
 
     //---sends an SMS message to another device---
@@ -204,18 +192,15 @@ public class MainFragment extends Fragment {
     }
 
 
-    public static boolean hasPermissions(Context context, String... permissions) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (context != null && permissions != null) {
-                for (String permission : permissions) {
-                    if (ContextCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
-                        return false;
-                    }
-                }
-            }
-        }
-        return true;
+
+
+    public void onDetach() {
+        super.onDetach();
+        getContext().unregisterReceiver(mReceiver);
     }
 
-
+    public interface OnReceiveFragmentInteractionListener {
+        // TODO: Update argument type and name
+        void onListFragmentInteraction();
+    }
 }

@@ -1,13 +1,18 @@
 package com.example.busarrivaltime;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
-import com.example.busarrivaltime.ui.main.MainFragment;
+import com.example.busarrivaltime.ui.main.ReceiveFragment;
 import com.example.busarrivaltime.ui.main.RouteFragment;
 import com.example.busarrivaltime.ui.main.dummy.DummyContent;
 
@@ -22,11 +27,45 @@ public class MainActivity extends AppCompatActivity implements RouteFragment.OnL
                     .replace(R.id.container, RouteFragment.newInstance(1))
                     .commitNow();
         }
+
+        int PERMISSION_ALL = 1;
+        String[] PERMISSIONS = {
+                Manifest.permission.SEND_SMS,
+                Manifest.permission.RECEIVE_SMS
+        };
+
+        if (!hasPermissions(this, PERMISSIONS)) {
+            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
+        }
+    }
+
+    public static boolean hasPermissions(Context context, String... permissions) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (context != null && permissions != null) {
+                for (String permission : permissions) {
+                    if (ContextCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        getSupportFragmentManager().popBackStack();
     }
 
     @Override
     public void onListFragmentInteraction(DummyContent.DummyItem item) {
-        Toast.makeText(MainActivity.this, item.toString(), Toast.LENGTH_LONG).show();
+//        Toast.makeText(MainActivity.this, item.toString(), Toast.LENGTH_LONG).show();
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.container, ReceiveFragment.newInstance())
+                .addToBackStack(null)
+                .commit();
     }
 
     @Override
