@@ -51,6 +51,13 @@ public class RouteRecyclerViewAdapter extends RecyclerView.Adapter<RouteRecycler
                 }
             }
         });
+
+        holder.mView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                return false;
+            }
+        });
     }
 
     @Override
