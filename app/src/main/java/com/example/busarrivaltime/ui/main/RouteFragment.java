@@ -6,9 +6,12 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -32,10 +35,13 @@ import java.util.List;
 public class RouteFragment extends Fragment {
 
     // TODO: Customize parameter argument names
-    private static final String ARG_COLUMN_COUNT = "column-count";
+//    private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
-    private int mColumnCount = 1;
+//    private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
+
+    private MainViewModel mViewModel;
+    private RecyclerView mListView;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -46,11 +52,11 @@ public class RouteFragment extends Fragment {
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static RouteFragment newInstance(int columnCount) {
+    public static RouteFragment newInstance(/*int columnCount*/) {
         RouteFragment fragment = new RouteFragment();
-        Bundle args = new Bundle();
-        args.putInt(ARG_COLUMN_COUNT, columnCount);
-        fragment.setArguments(args);
+//        Bundle args = new Bundle();
+//        args.putInt(ARG_COLUMN_COUNT, columnCount);
+//        fragment.setArguments(args);
         return fragment;
     }
 
@@ -58,9 +64,18 @@ public class RouteFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments() != null) {
-            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
+//        if (getArguments() != null) {
+//            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
+//        }
+
+        Context context = getContext();
+        if (context instanceof OnListFragmentInteractionListener) {
+            mListener = (OnListFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnListFragmentInteractionListener");
         }
+
     }
 
     @Override
@@ -71,37 +86,58 @@ public class RouteFragment extends Fragment {
         // Set the adapter
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
-            if (mColumnCount <= 1) {
-                recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            } else {
-                recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
-            }
-            recyclerView.setAdapter(new RouteRecyclerViewAdapter(DummyContent.ITEMS, mListener));
+            mListView = (RecyclerView) view;
+
+            LinearLayoutManager layoutManager = null;
+//            if (mColumnCount <= 1) {
+                layoutManager = new LinearLayoutManager(context);
+//                mListView.setLayoutManager(new LinearLayoutManager(context));
+//            } else {
+//                layoutManager = new GridLayoutManager(context, mColumnCount);
+//                mListView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
+//            }
+
+            mListView.setLayoutManager(layoutManager);
+            DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(context,
+                    layoutManager.getOrientation());
+            mListView.addItemDecoration(dividerItemDecoration);
         }
         return view;
     }
 
-
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnListFragmentInteractionListener) {
-            mListener = (OnListFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnListFragmentInteractionListener");
-        }
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mViewModel = new ViewModelProvider(getActivity()).get(MainViewModel.class);
+        // TODO: Use the ViewModel
 
 
+        mListView.setAdapter(new RouteRecyclerViewAdapter(mViewModel.getRoutes(), mListener));
 
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
+    public void onDestroy() {
+        super.onDestroy();
         mListener = null;
     }
+
+//    @Override
+//    public void onAttach(Context context) {
+//        super.onAttach(context);
+//        if (context instanceof OnListFragmentInteractionListener) {
+//            mListener = (OnListFragmentInteractionListener) context;
+//        } else {
+//            throw new RuntimeException(context.toString()
+//                    + " must implement OnListFragmentInteractionListener");
+//        }
+//    }
+
+//    @Override
+//    public void onDetach() {
+//        super.onDetach();
+//        mListener = null;
+//    }
 
 
 
@@ -117,6 +153,7 @@ public class RouteFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(DummyItem item);
+        void onListFragmentInteraction(Route route);
+        void onEditButtonInteraction(int index);
     }
 }

@@ -12,7 +12,9 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.busarrivaltime.ui.main.EditFragment;
 import com.example.busarrivaltime.ui.main.ReceiveFragment;
+import com.example.busarrivaltime.ui.main.Route;
 import com.example.busarrivaltime.ui.main.RouteFragment;
 import com.example.busarrivaltime.ui.main.dummy.DummyContent;
 
@@ -24,7 +26,7 @@ public class MainActivity extends AppCompatActivity implements RouteFragment.OnL
         setContentView(R.layout.main_activity);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, RouteFragment.newInstance(1))
+                    .replace(R.id.container, RouteFragment.newInstance())
                     .commitNow();
         }
 
@@ -60,13 +62,22 @@ public class MainActivity extends AppCompatActivity implements RouteFragment.OnL
     }
 
     @Override
-    public void onListFragmentInteraction(DummyContent.DummyItem item) {
+    public void onListFragmentInteraction(Route route) {
 //        Toast.makeText(MainActivity.this, item.toString(), Toast.LENGTH_LONG).show();
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.container, ReceiveFragment.newInstance())
                 .addToBackStack(null)
                 .commit();
     }
+
+    @Override
+    public void onEditButtonInteraction(int index) {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.container, EditFragment.newInstance(index))
+                .addToBackStack(null)
+                .commit();
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -84,6 +95,10 @@ public class MainActivity extends AppCompatActivity implements RouteFragment.OnL
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_add) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.container, EditFragment.newInstance(-1))
+                    .addToBackStack(null)
+                    .commit();
             return true;
         }
 

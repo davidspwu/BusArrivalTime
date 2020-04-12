@@ -98,7 +98,7 @@ public class ReceiveFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mViewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        mViewModel = new ViewModelProvider(getActivity()).get(MainViewModel.class);
         // TODO: Use the ViewModel
 
         mText = getActivity().findViewById(R.id.message);
