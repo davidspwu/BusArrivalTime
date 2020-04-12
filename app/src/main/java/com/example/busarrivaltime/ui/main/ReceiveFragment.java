@@ -43,8 +43,8 @@ public class ReceiveFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
         mReceiver = new BroadcastReceiver() {
             @Override
@@ -191,11 +191,9 @@ public class ReceiveFragment extends Fragment {
         sms.sendTextMessage(phoneNumber, null, message, sentPI, deliveredPI);
     }
 
-
-
-
-    public void onDetach() {
-        super.onDetach();
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         getContext().unregisterReceiver(mReceiver);
     }
 

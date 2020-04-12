@@ -139,6 +139,22 @@ public class RouteFragment extends Fragment {
 //        mListener = null;
 //    }
 
+//    @Override
+//    public void onListFragmentInteraction(Route route) {
+////        Toast.makeText(MainActivity.this, item.toString(), Toast.LENGTH_LONG).show();
+//        getActivity().getSupportFragmentManager().beginTransaction()
+//                .replace(R.id.container, ReceiveFragment.newInstance())
+//                .addToBackStack(null)
+//                .commit();
+//    }
+//
+//    @Override
+//    public void onEditButtonInteraction(int index) {
+//       getActivity().getSupportFragmentManager().beginTransaction()
+//                .replace(R.id.container, EditFragment.newInstance(index))
+//                .addToBackStack(null)
+//                .commit();
+//    }
 
 
     /**
