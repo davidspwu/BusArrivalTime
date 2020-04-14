@@ -26,19 +26,19 @@ import com.example.busarrivaltime.ui.main.dummy.DummyContent.DummyItem;
 
 import java.util.List;
 
-/**
- * A fragment representing a list of Items.
- * <p/>
- * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
- * interface.
- */
-public class RouteFragment extends Fragment {
+///**
+// * A fragment representing a list of Items.
+// * <p/>
+// * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
+// * interface.
+// */
+public class RouteFragment extends Fragment implements RouteRecyclerViewAdapter.OnListInteractionListener {
 
     // TODO: Customize parameter argument names
 //    private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
 //    private int mColumnCount = 1;
-    private OnListFragmentInteractionListener mListener;
+//    private OnListFragmentInteractionListener mListener;
 
     private MainViewModel mViewModel;
     private RecyclerView mListView;
@@ -68,13 +68,13 @@ public class RouteFragment extends Fragment {
 //            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
 //        }
 
-        Context context = getContext();
-        if (context instanceof OnListFragmentInteractionListener) {
-            mListener = (OnListFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnListFragmentInteractionListener");
-        }
+//        Context context = getContext();
+//        if (context instanceof OnListFragmentInteractionListener) {
+//            mListener = (OnListFragmentInteractionListener) context;
+//        } else {
+//            throw new RuntimeException(context.toString()
+//                    + " must implement OnListFragmentInteractionListener");
+//        }
 
     }
 
@@ -111,15 +111,36 @@ public class RouteFragment extends Fragment {
         mViewModel = new ViewModelProvider(getActivity()).get(MainViewModel.class);
         // TODO: Use the ViewModel
 
+        mViewModel.init();
+        mListView.setAdapter(new RouteRecyclerViewAdapter(mViewModel.getRoutes(), this));
+    }
 
-        mListView.setAdapter(new RouteRecyclerViewAdapter(mViewModel.getRoutes(), mListener));
-
+    @Override
+    public void onPause() {
+        super.onPause();
+        mViewModel.save();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mListener = null;
+//        mListener = null;
+    }
+
+    @Override
+    public void onListInteraction(Route route) {
+        getActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.container, ReceiveFragment.newInstance())
+                .addToBackStack(null)
+                .commit();
+    }
+
+    @Override
+    public void onEditButtonInteraction(int index) {
+        getActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.container, EditFragment.newInstance(index))
+                .addToBackStack(null)
+                .commit();
     }
 
 //    @Override
@@ -157,19 +178,19 @@ public class RouteFragment extends Fragment {
 //    }
 
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnListFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onListFragmentInteraction(Route route);
-        void onEditButtonInteraction(int index);
-    }
+//    /**
+//     * This interface must be implemented by activities that contain this
+//     * fragment to allow an interaction in this fragment to be communicated
+//     * to the activity and potentially other fragments contained in that
+//     * activity.
+//     * <p/>
+//     * See the Android Training lesson <a href=
+//     * "http://developer.android.com/training/basics/fragments/communicating.html"
+//     * >Communicating with Other Fragments</a> for more information.
+//     */
+//    public interface OnListFragmentInteractionListener {
+//        // TODO: Update argument type and name
+//        void onListFragmentInteraction(Route route);
+//        void onEditButtonInteraction(int index);
+//    }
 }

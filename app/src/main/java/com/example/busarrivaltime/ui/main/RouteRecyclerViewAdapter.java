@@ -9,24 +9,24 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.busarrivaltime.R;
-import com.example.busarrivaltime.ui.main.RouteFragment.OnListFragmentInteractionListener;
+//import com.example.busarrivaltime.ui.main.RouteFragment.OnListFragmentInteractionListener;
 import com.example.busarrivaltime.ui.main.dummy.DummyContent.DummyItem;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
- * specified {@link OnListFragmentInteractionListener}.
- * TODO: Replace the implementation with code for your data type.
- */
+///**
+// * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
+// * specified {@link OnListFragmentInteractionListener}.
+// * TODO: Replace the implementation with code for your data type.
+// */
 public class RouteRecyclerViewAdapter extends RecyclerView.Adapter<RouteRecyclerViewAdapter.ViewHolder> {
 
     private final ArrayList<Route> mRoutes;
 //    private final List<DummyItem> mValues;
-    private final OnListFragmentInteractionListener mListener;
+    private final OnListInteractionListener mListener;
 
-    public RouteRecyclerViewAdapter(ArrayList<Route> routes, OnListFragmentInteractionListener listener) {
+    public RouteRecyclerViewAdapter(ArrayList<Route> routes, OnListInteractionListener listener) {
         mRoutes = routes;
         mListener = listener;
     }
@@ -50,7 +50,7 @@ public class RouteRecyclerViewAdapter extends RecyclerView.Adapter<RouteRecycler
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction(holder.mRoute);
+                    mListener.onListInteraction(holder.mRoute);
                 }
             }
         });
@@ -99,5 +99,11 @@ public class RouteRecyclerViewAdapter extends RecyclerView.Adapter<RouteRecycler
         public String toString() {
             return super.toString() + " '" + mContentView.getText() + "'";
         }
+    }
+
+    public interface OnListInteractionListener {
+        // TODO: Update argument type and name
+        void onListInteraction(Route route);
+        void onEditButtonInteraction(int index);
     }
 }

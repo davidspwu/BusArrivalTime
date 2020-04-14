@@ -18,7 +18,7 @@ import com.example.busarrivaltime.ui.main.Route;
 import com.example.busarrivaltime.ui.main.RouteFragment;
 import com.example.busarrivaltime.ui.main.dummy.DummyContent;
 
-public class MainActivity extends AppCompatActivity implements RouteFragment.OnListFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity /*implements RouteFragment.OnListFragmentInteractionListener*/ {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,22 +61,21 @@ public class MainActivity extends AppCompatActivity implements RouteFragment.OnL
 //        getSupportFragmentManager().popBackStack();
 //    }
 
-    @Override
-    public void onListFragmentInteraction(Route route) {
-//        Toast.makeText(MainActivity.this, item.toString(), Toast.LENGTH_LONG).show();
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container, ReceiveFragment.newInstance())
-                .addToBackStack(null)
-                .commit();
-    }
-
-    @Override
-    public void onEditButtonInteraction(int index) {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container, EditFragment.newInstance(index))
-                .addToBackStack(null)
-                .commit();
-    }
+//    @Override
+//    public void onListFragmentInteraction(Route route) {
+//        getSupportFragmentManager().beginTransaction()
+//                .replace(R.id.container, ReceiveFragment.newInstance())
+//                .addToBackStack(null)
+//                .commit();
+//    }
+//
+//    @Override
+//    public void onEditButtonInteraction(int index) {
+//        getSupportFragmentManager().beginTransaction()
+//                .replace(R.id.container, EditFragment.newInstance(index))
+//                .addToBackStack(null)
+//                .commit();
+//    }
 
 
     @Override

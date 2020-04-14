@@ -8,24 +8,24 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.busarrivaltime.R;
-import com.example.busarrivaltime.ui.main.RouteFragment.OnListFragmentInteractionListener;
+//import com.example.busarrivaltime.ui.main.RouteFragment.OnListFragmentInteractionListener;
 import com.example.busarrivaltime.ui.main.dummy.DummyContent.DummyItem;
 
 import java.util.List;
 
-/**
- * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
- * specified {@link OnListFragmentInteractionListener}.
- * TODO: Replace the implementation with code for your data type.
- */
+///**
+// * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
+// * specified {@link OnListFragmentInteractionListener}.
+// * TODO: Replace the implementation with code for your data type.
+// */
 public class DummyRecyclerViewAdapter extends RecyclerView.Adapter<DummyRecyclerViewAdapter.ViewHolder> {
 
     private final List<DummyItem> mValues;
-    private final OnListFragmentInteractionListener mListener;
+//    private final OnListFragmentInteractionListener mListener;
 
-    public DummyRecyclerViewAdapter(List<DummyItem> items, OnListFragmentInteractionListener listener) {
+    public DummyRecyclerViewAdapter(List<DummyItem> items /*, OnListFragmentInteractionListener listener*/) {
         mValues = items;
-        mListener = listener;
+//        mListener = listener;
     }
 
     @Override
@@ -44,11 +44,11 @@ public class DummyRecyclerViewAdapter extends RecyclerView.Adapter<DummyRecycler
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (null != mListener) {
+//                if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
 //                    mListener.onListFragmentInteraction(holder.mItem);
-                }
+//                }
             }
         });
 
