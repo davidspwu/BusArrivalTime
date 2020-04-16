@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.busarrivaltime.R;
 
@@ -95,16 +96,29 @@ public class EditFragment extends Fragment {
         mViewModel = new ViewModelProvider(getActivity()).get(MainViewModel.class);
         // TODO: Use the ViewModel
 
-        mIndex = getArguments().getInt(ARG_INDEX);
-        if (mIndex >= 0) {
-            Route r = mViewModel.getRoute(mIndex);
-            mPhone.setText(r.mPhone);
-            mBus.setText(r.mBus);
-            mStop.setText(r.mStop);
-            mDescription.setText(r.mDescription);
-            mDelete.setVisibility(View.VISIBLE);
+        // load data
+        mViewModel.load(savedInstanceState);
+
+        if (savedInstanceState == null) {
+            // init
+            mIndex = getArguments().getInt(ARG_INDEX);
+            if (mIndex >= 0) {
+                Route r = mViewModel.getRoute(mIndex);
+                mPhone.setText(r.mPhone);
+                mBus.setText(r.mBus);
+                mStop.setText(r.mStop);
+                mDescription.setText(r.mDescription);
+                mDelete.setVisibility(View.VISIBLE);
+
+//                Toast.makeText(getContext(), r.mDescription, Toast.LENGTH_LONG).show();
+
+            } else {
+                mDelete.setVisibility(View.GONE);
+            }
+
         } else {
-            mDelete.setVisibility(View.GONE);
+            // rotate or recover from low memory process kill, restore transient UI
+            // as EditText is restored by system, do nothing
         }
     }
 

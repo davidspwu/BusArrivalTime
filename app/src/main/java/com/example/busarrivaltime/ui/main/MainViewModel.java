@@ -37,6 +37,10 @@ public class MainViewModel extends AndroidViewModel {
 //        super();
 //    }
 
+    public boolean isInitialized() {
+        return mIsInitialized;
+    }
+
     public boolean addRoute(Route route) {
 
         for (int i = 0; i < mRoutes.size(); i++) {
@@ -68,8 +72,14 @@ public class MainViewModel extends AndroidViewModel {
 //        }
 //    }
 
-    public void init() {
-        if (!mIsInitialized) {
+    // make sure data is loaded before using
+    public void load(Bundle saveInstanceState) {
+        // load for init or restoring process killed by low memory
+        if (saveInstanceState == null || !mIsInitialized) {
+            String data = "";
+            if (saveInstanceState != null) {
+                // get data from saveInstanceState
+            }
 
             SharedPreferences sharedPref = getApplication().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
             int size = sharedPref.getInt(PREF_ROUTE_SIZE, 0);
@@ -85,7 +95,6 @@ public class MainViewModel extends AndroidViewModel {
             mIsInitialized = true;
         }
     }
-
 
     public void save() {
         SharedPreferences sharedPref = getApplication().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);

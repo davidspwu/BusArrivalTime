@@ -111,7 +111,17 @@ public class RouteFragment extends Fragment implements RouteRecyclerViewAdapter.
         mViewModel = new ViewModelProvider(getActivity()).get(MainViewModel.class);
         // TODO: Use the ViewModel
 
-        mViewModel.init();
+        // load data
+        mViewModel.load(savedInstanceState);
+
+        if (savedInstanceState == null) {
+            // initialize
+            // as list is created each time, nothing to do here
+        } else {
+            // rotate or recover from low memory process kill, restore transient UI
+            // no transient UI, nothing to do here
+        }
+
         mListView.setAdapter(new RouteRecyclerViewAdapter(mViewModel.getRoutes(), this));
     }
 
