@@ -23,6 +23,8 @@ public class EditFragment extends Fragment {
     public static final String ARG_INDEX = "index";
 //    public static final String ARG_IS_EDIT = "is_edit";
 
+    private static final String KEY_DELETE_VISIBILITY = "delete_visibility";
+
     private MainViewModel mViewModel;
     private int mIndex;
 
@@ -99,8 +101,9 @@ public class EditFragment extends Fragment {
         // load data
         mViewModel.load(savedInstanceState);
 
+        // setup UI
         if (savedInstanceState == null) {
-            // init
+            // init or navigate back from another fragment
             mIndex = getArguments().getInt(ARG_INDEX);
             if (mIndex >= 0) {
                 Route r = mViewModel.getRoute(mIndex);
@@ -118,8 +121,16 @@ public class EditFragment extends Fragment {
 
         } else {
             // rotate or recover from low memory process kill, restore transient UI
-            // as EditText is restored by system, do nothing
+            // EditText is restored by system, do nothing
+            // Delete visibility needs to be restored
+            int visibility = savedInstanceState.getInt(KEY_DELETE_VISIBILITY);
+            mDelete.setVisibility(visibility);
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putInt(KEY_DELETE_VISIBILITY, mDelete.getVisibility());
     }
 
 }

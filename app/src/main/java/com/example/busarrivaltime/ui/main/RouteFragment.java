@@ -1,7 +1,12 @@
 package com.example.busarrivaltime.ui.main;
 
 import android.Manifest;
+import android.app.Activity;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,9 +21,11 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.telephony.SmsManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.busarrivaltime.R;
 import com.example.busarrivaltime.ui.main.dummy.DummyContent;
@@ -40,8 +47,14 @@ public class RouteFragment extends Fragment implements RouteRecyclerViewAdapter.
 //    private int mColumnCount = 1;
 //    private OnListFragmentInteractionListener mListener;
 
+
+    private static final String SENT = "SMS_SENT";
+    private static final String DELIVERED = "SMS_DELIVERED";
+
     private MainViewModel mViewModel;
     private RecyclerView mListView;
+
+    private BroadcastReceiver mReceiver;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -63,6 +76,61 @@ public class RouteFragment extends Fragment implements RouteRecyclerViewAdapter.
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context arg0, Intent arg1) {
+                switch (getResultCode())
+                {
+                    case Activity.RESULT_OK:
+                        Toast.makeText(getContext(), "SMS sent",
+                                Toast.LENGTH_SHORT).show();
+                        launchReceiveFragment();
+                        break;
+                    case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
+                        Toast.makeText(getContext(), "Generic failure",
+                                Toast.LENGTH_LONG).show();
+                        break;
+                    case SmsManager.RESULT_ERROR_NO_SERVICE:
+                        Toast.makeText(getContext(), "No service",
+                                Toast.LENGTH_LONG).show();
+                        break;
+                    case SmsManager.RESULT_ERROR_NULL_PDU:
+                        Toast.makeText(getContext(), "Null PDU",
+                                Toast.LENGTH_LONG).show();
+                        break;
+                    case SmsManager.RESULT_ERROR_RADIO_OFF:
+                        Toast.makeText(getContext(), "Radio off",
+                                Toast.LENGTH_LONG).show();
+                        break;
+                }
+            }
+        };
+
+
+        //---when the SMS has been sent---
+        getContext().registerReceiver(mReceiver, new IntentFilter(SENT));
+
+        //---when the SMS has been delivered---
+//        getContext().registerReceiver(new BroadcastReceiver(){
+//            @Override
+//            public void onReceive(Context arg0, Intent arg1) {
+//                switch (getResultCode())
+//                {
+//                    case Activity.RESULT_OK:
+//                        Toast.makeText(getContext(), "SMS delivered",
+//                                Toast.LENGTH_SHORT).show();
+//                        break;
+//                    case Activity.RESULT_CANCELED:
+//                        Toast.makeText(getContext(), "SMS not delivered",
+//                                Toast.LENGTH_LONG).show();
+//                        break;
+//                }
+//            }
+//        }, new IntentFilter(DELIVERED));
+
+
+
 
 //        if (getArguments() != null) {
 //            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
@@ -115,11 +183,11 @@ public class RouteFragment extends Fragment implements RouteRecyclerViewAdapter.
         mViewModel.load(savedInstanceState);
 
         if (savedInstanceState == null) {
-            // initialize
-            // as list is created each time, nothing to do here
+            // init or navigate back from another fragment
+            // as list is created each time, do nothing
         } else {
             // rotate or recover from low memory process kill, restore transient UI
-            // no transient UI, nothing to do here
+            // no transient UI, do nothing
         }
 
         mListView.setAdapter(new RouteRecyclerViewAdapter(mViewModel.getRoutes(), this));
@@ -135,14 +203,14 @@ public class RouteFragment extends Fragment implements RouteRecyclerViewAdapter.
     public void onDestroy() {
         super.onDestroy();
 //        mListener = null;
+        getContext().unregisterReceiver(mReceiver);
     }
 
     @Override
     public void onListInteraction(Route route) {
-        getActivity().getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container, ReceiveFragment.newInstance())
-                .addToBackStack(null)
-                .commit();
+        String phone = route.mPhone;
+        String message = route.mStop + " " + route.mBus;
+        sendSMS(phone, message);
     }
 
     @Override
@@ -152,6 +220,27 @@ public class RouteFragment extends Fragment implements RouteRecyclerViewAdapter.
                 .addToBackStack(null)
                 .commit();
     }
+
+    private void launchReceiveFragment() {
+        getActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.container, ReceiveFragment.newInstance())
+                .addToBackStack(null)
+                .commit();
+    }
+
+    //---sends an SMS message to another device---
+    private void sendSMS(String phoneNumber, String message)
+    {
+        PendingIntent sentPI = PendingIntent.getBroadcast(getContext(), 0,
+                new Intent(SENT), 0);
+
+        PendingIntent deliveredPI = PendingIntent.getBroadcast(getContext(), 0,
+                new Intent(DELIVERED), 0);
+
+        SmsManager sms = SmsManager.getDefault();
+        sms.sendTextMessage(phoneNumber, null, message, sentPI, deliveredPI);
+    }
+
 
 //    @Override
 //    public void onAttach(Context context) {

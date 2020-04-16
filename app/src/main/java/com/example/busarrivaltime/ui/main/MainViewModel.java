@@ -17,6 +17,11 @@ import java.util.Set;
 public class MainViewModel extends AndroidViewModel {
     // TODO: Implement the ViewModel
 
+//    private static final int STATE_INIT = 0;
+//    private static final int STATE_NAV_BACK = 1;
+//    private static final int STATE_ROTATE = 2;
+//    private static final int STATE_LOW_MEM = 3;
+
     private static final String PREF_NAME = "bus_routes";
     private static final String PREF_ROUTE_SIZE = "size";
 //    private static final String PREF_KEY = "routes";
@@ -75,25 +80,71 @@ public class MainViewModel extends AndroidViewModel {
     // make sure data is loaded before using
     public void load(Bundle saveInstanceState) {
         // load for init or restoring process killed by low memory
-        if (saveInstanceState == null || !mIsInitialized) {
-            String data = "";
+
+        // 4 possible situations: init, restore from low mem process kill, rotate, navigate back
+        // to this fragment from another.  Only init and restore from low mem process kill need to
+        // rebuild ViewModel.
+        if (!mIsInitialized) {
+            String data = null;
             if (saveInstanceState != null) {
-                // get data from saveInstanceState
+                // restore from low mem process kill, get data from saveInstanceState
+                data = "";
             }
 
-            SharedPreferences sharedPref = getApplication().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-            int size = sharedPref.getInt(PREF_ROUTE_SIZE, 0);
-            if (size > 0) {
-                for (int i = 0; i < size; i++) {
-                    String val = sharedPref.getString(Integer.toString(i), "");
-                    String[] route = val.split(PREF_SEPARATOR);
-                    Route r = new Route(route[0], route[1], route[2], route[3]);
-                    mRoutes.add(r);
-                }
-            }
-
-            mIsInitialized = true;
+            loadFromPref(data);
         }
+
+
+//        int state = -1;
+//        if (saveInstanceState == null) {
+//            if (!mIsInitialized) {
+//                state = STATE_INIT;
+//            } else {
+//                state = STATE_NAV_BACK;
+//            }
+//        } else {
+//            if (!mIsInitialized) {
+//                state = STATE_LOW_MEM;
+//            } else {
+//                state = STATE_ROTATE;
+//            }
+//        }
+//
+//        switch (state) {
+//            case STATE_INIT:
+//                loadFromPref(null);
+//                break;
+//            case STATE_NAV_BACK:
+//                // already loaded, do nothing
+//                break;
+//            case STATE_ROTATE:
+//                // already loaded, do nothing
+//                break;
+//            case STATE_LOW_MEM:
+//                String data = "";
+//                if (saveInstanceState != null) {
+//                    // get data from saveInstanceState
+//                }
+//                loadFromPref(data);
+//                break;
+//            default:
+//                break;
+//        }
+    }
+
+    private void loadFromPref(String data) {
+        SharedPreferences sharedPref = getApplication().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        int size = sharedPref.getInt(PREF_ROUTE_SIZE, 0);
+        if (size > 0) {
+            for (int i = 0; i < size; i++) {
+                String val = sharedPref.getString(Integer.toString(i), "");
+                String[] route = val.split(PREF_SEPARATOR);
+                Route r = new Route(route[0], route[1], route[2], route[3]);
+                mRoutes.add(r);
+            }
+        }
+
+        mIsInitialized = true;
     }
 
     public void save() {
