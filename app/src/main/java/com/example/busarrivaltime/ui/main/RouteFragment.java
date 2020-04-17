@@ -1,23 +1,20 @@
 package com.example.busarrivaltime.ui.main;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,10 +25,8 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.busarrivaltime.R;
-import com.example.busarrivaltime.ui.main.dummy.DummyContent;
-import com.example.busarrivaltime.ui.main.dummy.DummyContent.DummyItem;
 
-import java.util.List;
+import java.util.Collections;
 
 ///**
 // * A fragment representing a list of Items.
@@ -48,13 +43,24 @@ public class RouteFragment extends Fragment implements RouteRecyclerViewAdapter.
 //    private OnListFragmentInteractionListener mListener;
 
 
+
+
     private static final String SENT = "SMS_SENT";
     private static final String DELIVERED = "SMS_DELIVERED";
 
+    private static final String KEY_IS_LOADING = "is_loading";
+
     private MainViewModel mViewModel;
     private RecyclerView mListView;
+//    private RouteRecyclerViewAdapter mAdapter;
 
     private BroadcastReceiver mReceiver;
+
+    private long mClickTime;
+    private int mClickIndex = -1;
+
+    private AlertDialog mLoadingDialog;
+//    private boolean mIsLoading;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -85,6 +91,7 @@ public class RouteFragment extends Fragment implements RouteRecyclerViewAdapter.
                     case Activity.RESULT_OK:
                         Toast.makeText(getContext(), "SMS sent",
                                 Toast.LENGTH_SHORT).show();
+                        mLoadingDialog.dismiss();
                         launchReceiveFragment();
                         break;
                     case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
@@ -144,6 +151,15 @@ public class RouteFragment extends Fragment implements RouteRecyclerViewAdapter.
 //                    + " must implement OnListFragmentInteractionListener");
 //        }
 
+
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+        View v = inflater.inflate(R.layout.loading_dialog, null);
+
+        // Use the Builder class for convenient dialog construction
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setView(v)
+                .setCancelable(false);
+        mLoadingDialog = builder.create();
     }
 
     @Override
@@ -169,6 +185,32 @@ public class RouteFragment extends Fragment implements RouteRecyclerViewAdapter.
             DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(context,
                     layoutManager.getOrientation());
             mListView.addItemDecoration(dividerItemDecoration);
+
+
+
+            // re-ordering functionality
+            ItemTouchHelper touchHelper = new ItemTouchHelper(new ItemTouchHelper.Callback() {
+                public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                    Collections.swap(mViewModel.getRoutes(), viewHolder.getAdapterPosition(), target.getAdapterPosition());
+                    recyclerView.getAdapter().notifyItemMoved(viewHolder.getAdapterPosition(), target.getAdapterPosition());
+                    return true;
+                }
+
+                @Override
+                public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                    // no-op
+                }
+
+                @Override
+                public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                    return makeFlag(ItemTouchHelper.ACTION_STATE_DRAG,
+                            ItemTouchHelper.DOWN | ItemTouchHelper.UP | ItemTouchHelper.START | ItemTouchHelper.END);
+                }
+            });
+            touchHelper.attachToRecyclerView((RecyclerView)view);
+
+
+
         }
         return view;
     }
@@ -187,7 +229,11 @@ public class RouteFragment extends Fragment implements RouteRecyclerViewAdapter.
             // as list is created each time, do nothing
         } else {
             // rotate or recover from low memory process kill, restore transient UI
-            // no transient UI, do nothing
+
+            boolean isLoading = savedInstanceState.getBoolean(KEY_IS_LOADING);
+            if (isLoading) {
+                mLoadingDialog.show();
+            }
         }
 
         mListView.setAdapter(new RouteRecyclerViewAdapter(mViewModel.getRoutes(), this));
@@ -204,10 +250,46 @@ public class RouteFragment extends Fragment implements RouteRecyclerViewAdapter.
         super.onDestroy();
 //        mListener = null;
         getContext().unregisterReceiver(mReceiver);
+        mLoadingDialog.dismiss();
     }
 
     @Override
-    public void onListInteraction(Route route) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putBoolean(KEY_IS_LOADING, mLoadingDialog.isShowing());
+    }
+
+    @Override
+    public void onListInteraction(int index, Route route) {
+
+        // prevent quick double click
+        long time = System.currentTimeMillis();
+        if (time - mClickTime < 1000) {
+            return;
+        }
+        mClickTime = time;
+
+
+
+
+//        builder.setMessage("Sending SMS");
+//                .setCancelable(false);
+//                .setPositiveButton(R.string.fire, new DialogInterface.OnClickListener() {
+//                    public void onClick(DialogInterface dialog, int id) {
+//                        // FIRE ZE MISSILES!
+//                    }
+//                })
+//                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+//                    public void onClick(DialogInterface dialog, int id) {
+//                        // User cancelled the dialog
+//                    }
+//                });
+
+        // show loading dialog
+        mLoadingDialog.show();
+
+        // save route index
+        mClickIndex = index;
+
         String phone = route.mPhone;
         String message = route.mStop + " " + route.mBus;
         sendSMS(phone, message);
@@ -223,7 +305,7 @@ public class RouteFragment extends Fragment implements RouteRecyclerViewAdapter.
 
     private void launchReceiveFragment() {
         getActivity().getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container, ReceiveFragment.newInstance())
+                .replace(R.id.container, ReceiveFragment.newInstance(mClickIndex))
                 .addToBackStack(null)
                 .commit();
     }

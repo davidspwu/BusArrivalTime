@@ -33,6 +33,8 @@ import com.example.busarrivaltime.R;
 
 public class ReceiveFragment extends Fragment {
 
+    public static final String ARG_INDEX = "index";
+
     private static final String KEY_SAVED_TEXT = "saved_text";
 
     private MainViewModel mViewModel;
@@ -40,8 +42,12 @@ public class ReceiveFragment extends Fragment {
     private TextView mMessage;
     private BroadcastReceiver mReceiver;
 
-    public static ReceiveFragment newInstance() {
-        return new ReceiveFragment();
+    public static ReceiveFragment newInstance(int index) {
+        ReceiveFragment f = new ReceiveFragment();
+        Bundle args = new Bundle();
+        args.putInt(ARG_INDEX, index);
+        f.setArguments(args);
+        return f;
     }
 
     @Override
@@ -69,6 +75,11 @@ public class ReceiveFragment extends Fragment {
                     }
                     //---display the new SMS message---
 //                    Toast.makeText(context, str, Toast.LENGTH_LONG).show();
+
+                    int index = getArguments().getInt(ARG_INDEX);
+                    Route route = mViewModel.getRoute(index);
+
+                    str = route.mStop + " [" + route.mBus + "] " + route.mDescription +"\n\n" + str;
 
                     mMessage.setText(str);
 
@@ -103,6 +114,9 @@ public class ReceiveFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         mViewModel = new ViewModelProvider(getActivity()).get(MainViewModel.class);
         // TODO: Use the ViewModel
+
+        // load data
+        mViewModel.load(savedInstanceState);
 
         if (savedInstanceState != null) {
             // Rotate or restore from low mem process kill

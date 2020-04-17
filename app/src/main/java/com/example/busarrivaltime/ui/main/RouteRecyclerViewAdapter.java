@@ -41,6 +41,7 @@ public class RouteRecyclerViewAdapter extends RecyclerView.Adapter<RouteRecycler
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         holder.mRoute = mRoutes.get(position);
+//        holder.mIndex = position;
         holder.mIdView.setText(mRoutes.get(position).mBus);
         holder.mContentView.setText(mRoutes.get(position).mDescription);
 
@@ -50,7 +51,7 @@ public class RouteRecyclerViewAdapter extends RecyclerView.Adapter<RouteRecycler
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onListInteraction(holder.mRoute);
+                    mListener.onListInteraction(holder.getAdapterPosition(), holder.mRoute);
                 }
             }
         });
@@ -61,7 +62,7 @@ public class RouteRecyclerViewAdapter extends RecyclerView.Adapter<RouteRecycler
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onEditButtonInteraction(position);
+                    mListener.onEditButtonInteraction(holder.getAdapterPosition());
                 }
             }
         });
@@ -86,6 +87,7 @@ public class RouteRecyclerViewAdapter extends RecyclerView.Adapter<RouteRecycler
         public final TextView mContentView;
         public final Button mEditView;
         public Route mRoute;
+//        public int mIndex;
 
         public ViewHolder(View view) {
             super(view);
@@ -103,7 +105,7 @@ public class RouteRecyclerViewAdapter extends RecyclerView.Adapter<RouteRecycler
 
     public interface OnListInteractionListener {
         // TODO: Update argument type and name
-        void onListInteraction(Route route);
+        void onListInteraction(int index, Route route);
         void onEditButtonInteraction(int index);
     }
 }
