@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.busarrivaltime.R;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.Collections;
 
@@ -53,6 +54,8 @@ public class RouteFragment extends Fragment implements RouteRecyclerViewAdapter.
     private MainViewModel mViewModel;
     private RecyclerView mListView;
 //    private RouteRecyclerViewAdapter mAdapter;
+
+    private FloatingActionButton mAddButton;
 
     private BroadcastReceiver mReceiver;
 
@@ -167,21 +170,26 @@ public class RouteFragment extends Fragment implements RouteRecyclerViewAdapter.
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_route_list, container, false);
 
+        mAddButton = (FloatingActionButton) view.findViewById(R.id.fab);
+        mAddButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.container, EditFragment.newInstance(-1))
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
+
+
         // Set the adapter
-        if (view instanceof RecyclerView) {
+//        if (view instanceof RecyclerView) {
             Context context = view.getContext();
-            mListView = (RecyclerView) view;
+            mListView = (RecyclerView) view.findViewById(R.id.list);
 
-            LinearLayoutManager layoutManager = null;
-//            if (mColumnCount <= 1) {
-                layoutManager = new LinearLayoutManager(context);
-//                mListView.setLayoutManager(new LinearLayoutManager(context));
-//            } else {
-//                layoutManager = new GridLayoutManager(context, mColumnCount);
-//                mListView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
-//            }
-
+            LinearLayoutManager layoutManager = new LinearLayoutManager(context);
             mListView.setLayoutManager(layoutManager);
+
             DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(context,
                     layoutManager.getOrientation());
             mListView.addItemDecoration(dividerItemDecoration);
@@ -207,11 +215,11 @@ public class RouteFragment extends Fragment implements RouteRecyclerViewAdapter.
                             ItemTouchHelper.DOWN | ItemTouchHelper.UP | ItemTouchHelper.START | ItemTouchHelper.END);
                 }
             });
-            touchHelper.attachToRecyclerView((RecyclerView)view);
+            touchHelper.attachToRecyclerView(mListView);
 
 
 
-        }
+//        }
         return view;
     }
 
