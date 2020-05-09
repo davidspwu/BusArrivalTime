@@ -22,15 +22,21 @@ public class MainViewModel extends AndroidViewModel {
 //    private static final int STATE_ROTATE = 2;
 //    private static final int STATE_LOW_MEM = 3;
 
+    public static final String INIT_TEXT = "Click on search button";
+    public static final String SEPARATOR = "\n---------------\n\n";
+    private static final int SAVED_TEXT_MAX = 10;  // only save last 10 messages
+
     private static final String PREF_NAME = "bus_routes";
     private static final String PREF_ROUTE_SIZE = "size";
 //    private static final String PREF_KEY = "routes";
     private static final String PREF_SEPARATOR = ":";
+    private static final String PREF_TEXT = "text";
 
     private boolean mIsInitialized;
 //    private Context mContext;
 
     private ArrayList<Route> mRoutes = new ArrayList<>();
+    private String mText;
 
     public MainViewModel(@NonNull Application application) {
         super(application);
@@ -76,6 +82,14 @@ public class MainViewModel extends AndroidViewModel {
 //            mAdapter = new RouteRecyclerViewAdapter(mRoutes);
 //        }
 //    }
+
+    public void setText(String text) {
+        mText = text;
+    }
+
+    public String getText() {
+        return mText;
+    }
 
     // make sure data is loaded before using
     public void load(Bundle saveInstanceState) {
@@ -144,6 +158,8 @@ public class MainViewModel extends AndroidViewModel {
             }
         }
 
+        mText = sharedPref.getString(PREF_TEXT, INIT_TEXT);
+
         mIsInitialized = true;
     }
 
@@ -162,6 +178,23 @@ public class MainViewModel extends AndroidViewModel {
                 editor.putString(key, val);
             }
         }
+
+        String[] texts = mText.split(SEPARATOR);
+        int length = texts.length;
+        int beginIndex = 0;
+        if (length > SAVED_TEXT_MAX) {
+            beginIndex = length - SAVED_TEXT_MAX;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = beginIndex; i < length; i++) {
+            sb.append(texts[i]);
+            if (i < length-1) {
+                sb.append(SEPARATOR);
+            }
+        }
+
+        editor.putString(PREF_TEXT, sb.toString());
 
         editor.commit();
     }

@@ -9,14 +9,9 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 
-import com.example.busarrivaltime.ui.main.EditFragment;
-import com.example.busarrivaltime.ui.main.ReceiveFragment;
-import com.example.busarrivaltime.ui.main.Route;
+import com.example.busarrivaltime.ui.main.ResultFragment;
 import com.example.busarrivaltime.ui.main.RouteFragment;
-import com.example.busarrivaltime.ui.main.dummy.DummyContent;
 
 public class MainActivity extends AppCompatActivity /*implements RouteFragment.OnListFragmentInteractionListener*/ {
 
@@ -26,7 +21,7 @@ public class MainActivity extends AppCompatActivity /*implements RouteFragment.O
         setContentView(R.layout.main_activity);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, RouteFragment.newInstance())
+                    .replace(R.id.container, ResultFragment.newInstance())
                     .commitNow();
         }
 

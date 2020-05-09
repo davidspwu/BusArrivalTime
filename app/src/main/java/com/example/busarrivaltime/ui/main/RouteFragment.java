@@ -27,6 +27,8 @@ import android.widget.Toast;
 import com.example.busarrivaltime.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Collections;
 
 ///**
@@ -60,10 +62,12 @@ public class RouteFragment extends Fragment implements RouteRecyclerViewAdapter.
     private BroadcastReceiver mReceiver;
 
     private long mClickTime;
-    private int mClickIndex = -1;
+//    private int mClickIndex = -1;
 
     private AlertDialog mLoadingDialog;
 //    private boolean mIsLoading;
+
+    private ArrayList<OnSendSMSListener> mOnSendSMSListeners = new ArrayList<>();
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -95,7 +99,7 @@ public class RouteFragment extends Fragment implements RouteRecyclerViewAdapter.
                         Toast.makeText(getContext(), "SMS sent",
                                 Toast.LENGTH_SHORT).show();
                         mLoadingDialog.dismiss();
-                        launchReceiveFragment();
+                        returnToResultFragment();
                         break;
                     case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
                         Toast.makeText(getContext(), "Generic failure",
@@ -295,12 +299,12 @@ public class RouteFragment extends Fragment implements RouteRecyclerViewAdapter.
         // show loading dialog
         mLoadingDialog.show();
 
-        // save route index
-        mClickIndex = index;
+//        // save route index
+//        mClickIndex = index;
 
         String phone = route.mPhone;
         String message = route.mStop + " " + route.mBus;
-        sendSMS(phone, message);
+        sendSMS(index, phone, message);
     }
 
     @Override
@@ -311,15 +315,19 @@ public class RouteFragment extends Fragment implements RouteRecyclerViewAdapter.
                 .commit();
     }
 
-    private void launchReceiveFragment() {
-        getActivity().getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container, ReceiveFragment.newInstance(mClickIndex))
-                .addToBackStack(null)
-                .commit();
+//    private void launchReceiveFragment() {
+//        getActivity().getSupportFragmentManager().beginTransaction()
+//                .replace(R.id.container, ResultFragment.newInstance(mClickIndex))
+//                .addToBackStack(null)
+//                .commit();
+//    }
+
+    private void returnToResultFragment() {
+        getActivity().getSupportFragmentManager().popBackStack();
     }
 
     //---sends an SMS message to another device---
-    private void sendSMS(String phoneNumber, String message)
+    private void sendSMS(int index, String phoneNumber, String message)
     {
         PendingIntent sentPI = PendingIntent.getBroadcast(getContext(), 0,
                 new Intent(SENT), 0);
@@ -329,7 +337,27 @@ public class RouteFragment extends Fragment implements RouteRecyclerViewAdapter.
 
         SmsManager sms = SmsManager.getDefault();
         sms.sendTextMessage(phoneNumber, null, message, sentPI, deliveredPI);
+
+        // notify listener
+        for (int i = 0; i < mOnSendSMSListeners.size(); i++) {
+            mOnSendSMSListeners.get(i).onSend(index);
+        }
     }
+
+    public void registerOnSendSMSListener(OnSendSMSListener listener) {
+        mOnSendSMSListeners.add(listener);
+    }
+
+    public interface OnSendSMSListener {
+        public void onSend(int index);
+    }
+
+//    @Override
+//    public void onAttach(Context context) {
+//        super.onAttach(context);
+//        OnSendSMSListener listener = (OnSendSMSListener)getParentFragment();
+//        registerOnSendSMSListener(listener);
+//    }
 
 
 //    @Override
