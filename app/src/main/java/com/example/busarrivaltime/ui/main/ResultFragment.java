@@ -28,6 +28,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.w3c.dom.Text;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class ResultFragment extends Fragment implements RouteFragment.OnSendSMSListener {
 
 //    public static final String ARG_INDEX = "index";
@@ -90,10 +94,13 @@ public class ResultFragment extends Fragment implements RouteFragment.OnSendSMSL
                     //---display the new SMS message---
 //                    Toast.makeText(context, str, Toast.LENGTH_LONG).show();
 
+                    DateFormat dateFormat = new SimpleDateFormat("hh:mm a");
+                    String dateString = dateFormat.format(new Date()).toString();
+
 //                    int index = getArguments().getInt(ARG_INDEX);
                     Route route = mViewModel.getRoute(mCurrentIndex);
 
-                    str = route.mStop + " [" + route.mBus + "] " + route.mDescription +"\n\n" + str;
+                    str = "Current time: " + dateString + "\n\n" + route.mStop + " [" + route.mBus + "] " + route.mDescription +"\n\n" + str;
 
                     String text = mMessage.getText().toString();
 
